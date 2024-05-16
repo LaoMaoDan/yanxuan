@@ -1,0 +1,50 @@
+import { getAddressList } from "@/api/getAddressList";
+import { postAddressremove } from "@/api/postAddressremove.js";
+
+let orderconfirm = ({
+    state: {
+        list: JSON.parse(localStorage.getItem('orderconfirmList')) || [],
+        title: '',
+        type: ''
+    },
+    getters: {
+
+    },
+    mutations: {
+        getList(state, payload) {
+            payload.list.map(item => {
+                item.checked = false
+            })
+            state.list = payload.list
+        },
+        setChecked(state, payload) {
+            state.list.map(item => {
+                if (item.id == payload) {
+                    item.checked = true
+                } else {
+                    item.checked = false
+                }
+            })
+        },
+    },
+    actions: {
+
+        // 获取地址列表数据
+        async getAddressData(context, payload) {
+            let res = await getAddressList({ uid: payload.uid });
+            context.commit('getList', res)
+        },
+        // 删除地址列表数据
+        async postAddressDel(context, payload) {
+            let res = await postAddressremove({ id: payload });
+            if (payload.code == 200) {
+                this.$message.show({ title: '删除成功', type: "success" })
+            } else {
+                this.$message.show({ title: '删除失败', type: "error" })
+            }
+            context.commit('delAddress', res)
+        }
+    },
+    namespaced: true
+})
+export default orderconfirm
